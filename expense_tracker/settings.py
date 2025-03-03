@@ -132,3 +132,6 @@ MONTHLY_BUDGET = 100000
 
 # Add this for proper static file handling
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Add these settings
+CSRF_TRUSTED_ORIGINS = ['https://*.replit.dev', 'https://*.replit.app']
