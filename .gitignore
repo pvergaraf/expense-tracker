@@ -23,3 +23,9 @@ media
 # OS
 .DS_Store
 Thumbs.db
+
+# Replit
+.upm/
+.config/
+.cache/
+.local/

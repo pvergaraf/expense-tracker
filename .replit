@@ -1,0 +1,18 @@
+run = "python3 manage.py runserver 0.0.0.0:3000"
+entrypoint = "manage.py"
+
+[nix]
+channel = "stable-22_11"
+
+[env]
+PYTHON_VERSION = "3.10"
+PATH = "/home/runner/${REPL_SLUG}/venv/bin"
+
+[packager]
+language = "python3"
+ignoredPackages = ["unit_tests"]
+
+[packager.features]
+enabledForHosting = false
+packageSearch = true
+guessImports = true 

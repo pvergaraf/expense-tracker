@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Expenses</h2>
+    
+    <!-- Budget Overview Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Monthly Budget</h5>
+                    <p class="h3">${{ budget|intcomma }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Spent This Month</h5>
+                    <p class="h3">${{ total_expenses|intcomma }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Remaining</h5>
+                    <p class="h3 {% if remaining_budget < 0 %}text-danger{% endif %}">
+                        ${{ remaining_budget|intcomma }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="mt-3">
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar {% if budget_percentage > 100 %}bg-danger{% elif budget_percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                         role="progressbar" 
+                         style="width: {% if budget_percentage > 100 %}100{% else %}{{ budget_percentage }}{% endif %}%"
+                         aria-valuenow="{{ budget_percentage }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ budget_percentage|floatformat:1 }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'add_expense' %}" class="btn btn-primary mb-3">Add New Expense</a>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Month/Year</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.month_year|date:"F Y" }}</td>
+                <td>${{ expense.amount|intcomma }}</td>
+                <td>{{ expense.description }}</td>
+                <td>
+                    <a href="{% url 'update_expense' expense.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'delete_expense' expense.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 
