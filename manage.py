@@ -18,7 +18,7 @@ def main():
     
     # This is added for Replit:
     if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
-        sys.argv.append('0.0.0.0:3000')
+        sys.argv.append('0.0.0.0:8000')
         
     execute_from_command_line(sys.argv)
 
