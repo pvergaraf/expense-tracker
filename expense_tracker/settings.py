@@ -134,4 +134,13 @@ MONTHLY_BUDGET = 100000
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Add these settings
-CSRF_TRUSTED_ORIGINS = ['https://*.replit.dev', 'https://*.replit.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.replit.dev',
+    'https://*.replit.app',
+    'https://*.repl.co'
+]
+
+# Add these security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False
