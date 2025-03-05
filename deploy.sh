@@ -11,6 +11,11 @@ source venv/bin/activate
 # Install/update dependencies
 pip install -r requirements.txt
 
+# Make sure .env.production is linked
+if [ ! -f .env.production ]; then
+    ln -s /etc/expense-tracker/.env.production .env.production
+fi
+
 # Apply migrations
 python3 manage_prod.py migrate
 
