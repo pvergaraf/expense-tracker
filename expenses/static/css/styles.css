@@ -6,4 +6,17 @@
 
 .budget-card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Logout button styling */
+.btn-link.nav-link {
+    color: rgba(255,255,255,.55);
+    text-decoration: none;
+    padding: 0;
+    border: none;
+    margin: 8px;
+}
+
+.btn-link.nav-link:hover {
+    color: rgba(255,255,255,.75);
 } 

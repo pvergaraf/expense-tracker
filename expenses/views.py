@@ -28,7 +28,6 @@ def add_expense(request):
 def expense_list(request):
     current_month = datetime.now().replace(day=1)
     monthly_expenses = Expense.objects.filter(
-        user=request.user,
         month_year__year=current_month.year,
         month_year__month=current_month.month
     )
@@ -53,7 +52,7 @@ def expense_list(request):
 
 @login_required
 def update_expense(request, pk):
-    expense = get_object_or_404(Expense, pk=pk, user=request.user)
+    expense = get_object_or_404(Expense, pk=pk)
     
     if request.method == 'POST':
         form = ExpenseForm(request.POST, instance=expense)
@@ -68,7 +67,7 @@ def update_expense(request, pk):
 
 @login_required
 def delete_expense(request, pk):
-    expense = get_object_or_404(Expense, pk=pk, user=request.user)
+    expense = get_object_or_404(Expense, pk=pk)
     
     if request.method == 'POST':
         expense.delete()

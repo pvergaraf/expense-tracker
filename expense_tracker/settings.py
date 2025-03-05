@@ -178,26 +178,10 @@ LOGIN_REDIRECT_URL = 'expense_list'
 
 MONTHLY_BUDGET = 100000
 
-# Add these settings
-CSRF_TRUSTED_ORIGINS = [
-    'https://chiwismo.com',
-    'https://www.chiwismo.com'
-]
-
 # Add these security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
-
-# Add these security settings
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-# Add after AWS settings
-print("AWS Settings:")
-print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
-print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
-print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE if not DEBUG else 'local'}")
 
 # Security settings - enable for HTTPS
 if not DEBUG:
@@ -212,6 +196,21 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
+# Add these settings
+CSRF_TRUSTED_ORIGINS = [
+    'https://chiwismo.com',
+    'https://www.chiwismo.com'
+]
+
+# Add after AWS settings
+print("AWS Settings:")
+print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
+print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
+print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE if not DEBUG else 'local'}")
+
+# Add logout settings
+LOGOUT_REDIRECT_URL = 'login'
+
 # Logging configuration
 LOGGING = {
     'version': 1,
@@ -223,12 +222,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django/debug.log',
-            'formatter': 'verbose',
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -237,19 +230,35 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'django.db.backends': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
     },
 }
+
+# Add file logging only in production
+if not DEBUG:
+    # Create logs directory if it doesn't exist
+    os.makedirs('/var/log/django', exist_ok=True)
+    
+    LOGGING['handlers']['file'] = {
+        'level': 'DEBUG',
+        'class': 'logging.FileHandler',
+        'filename': '/var/log/django/debug.log',
+        'formatter': 'verbose',
+    }
+    
+    # Add file handler to all loggers
+    for logger in LOGGING['loggers'].values():
+        logger['handlers'].append('file')
