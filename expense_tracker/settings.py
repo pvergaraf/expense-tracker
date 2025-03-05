@@ -32,7 +32,12 @@ DEBUG = str(os.environ.get('DEBUG')).lower() == 'true'
 print(f"DEBUG value from environment: {os.environ.get('DEBUG')}")
 print(f"Calculated DEBUG value: {DEBUG}")
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = [
+    'chiwismo.com',
+    'www.chiwismo.com',
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
@@ -144,7 +149,7 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
 # Static files configuration
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'expenses', 'static'),
+    os.path.join(BASE_DIR, 'expenses/static'),
 ]
 
 if not DEBUG:
@@ -157,9 +162,6 @@ else:
     
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Add debug print
-print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -171,24 +173,35 @@ LOGIN_REDIRECT_URL = 'expense_list'
 MONTHLY_BUDGET = 100000
 
 # Add these settings
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    'https://chiwismo.com',
+    'https://www.chiwismo.com'
+]
 
 # Add these security settings
-SECURE_PROXY_SSL_HEADER = None
-USE_X_FORWARDED_HOST = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
 
-# Security settings - only enable in production
-if not DEBUG:
-    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-else:
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
+# Add these security settings
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Add after AWS settings
 print("AWS Settings:")
 print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
 print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
 print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE if not DEBUG else 'local'}")
+
+# Security settings - enable for HTTPS
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

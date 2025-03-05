@@ -1,0 +1,8 @@
+venv/
+.git/
+.gitignore
+.env
+.env.production
+*.pyc
+__pycache__/
+.DS_Store 
