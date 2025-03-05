@@ -9,28 +9,7 @@ def main():
     # Load production environment variables
     load_dotenv('/etc/expense-tracker/.env.production')
     
-    # Verify environment variables are loaded
-    required_env_vars = [
-        'DB_NAME',
-        'DB_USER',
-        'DB_PASSWORD',
-        'DB_HOST',
-        'DB_PORT',
-    ]
-    
-    missing_vars = [var for var in required_env_vars if not os.getenv(var)]
-    if missing_vars:
-        print("Error: Missing required environment variables:")
-        print("\n".join(f"- {var}" for var in missing_vars))
-        sys.exit(1)
-    
-    print("Database settings:")
-    print(f"DB_NAME: {os.getenv('DB_NAME')}")
-    print(f"DB_USER: {os.getenv('DB_USER')}")
-    print(f"DB_HOST: {os.getenv('DB_HOST')}")
-    # Don't print sensitive information like passwords
-    
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'expense_tracker.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chiwismo_config.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

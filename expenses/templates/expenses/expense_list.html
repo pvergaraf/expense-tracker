@@ -43,7 +43,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Expense List</h2>
-        <a href="{% url 'add_expense' %}" class="btn btn-primary">Add New Expense</a>
+        <a href="{% url 'expenses:add' %}" class="btn btn-primary">Add New Expense</a>
     </div>
     
     <div class="table-responsive">
@@ -66,8 +66,8 @@
                     <td>{{ expense.user.username }}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Expense actions">
-                            <a href="{% url 'update_expense' expense.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="{% url 'delete_expense' expense.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="{% url 'expenses:update' expense.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="{% url 'expenses:delete' expense.pk %}" class="btn btn-sm btn-danger">Delete</a>
                         </div>
                     </td>
                 </tr>

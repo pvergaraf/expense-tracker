@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-5">
+        <p class="h2 text-start text-muted">🏡💕 Chiwismo es <span class="text-primary fw-bold">{{ welcome_message }}</span></p>
+    </div>
+
+    <!-- Pending Todos Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Pending Tasks</h2>
+                <a href="{% url 'todos:add' %}?next=home" class="btn btn-primary btn-sm">Add New Task</a>
+            </div>
+
+            {% if pending_todos %}
+                <div class="list-group">
+                    {% for todo in pending_todos %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge {% if todo.priority == 'H' %}bg-danger{% elif todo.priority == 'M' %}bg-warning{% else %}bg-info{% endif %} me-2">
+                                    {{ todo.get_priority_display }}
+                                </span>
+                                {{ todo.title }}
+                                <small class="text-muted ms-2">
+                                    {% if todo.assigned_to.all %}
+                                        • Assigned to: {% for user in todo.assigned_to.all %}{{ user.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    {% else %}
+                                        • Not assigned
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'todos:update' todo.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <form method="post" action="{% url 'todos:toggle' todo.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Complete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-smile fa-3x text-success mb-3"></i>
+                    <p class="lead mb-0">No pending tasks! 🎉</p>
+                    <p class="text-muted">Time to relax or plan your next goal!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Budget Overview Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Current Month Budget</h2>
+                <a href="{% url 'expenses:add' %}?next=home" class="btn btn-primary btn-sm">Add New Expense</a>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <h5 class="card-title">Monthly Budget</h5>
+                    <p class="h3 mb-0">${{ budget|intcomma }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="card-title">Spent This Month</h5>
+                    <p class="h3 mb-0">${{ total_expenses|intcomma }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="card-title">Remaining</h5>
+                    <p class="h3 mb-0 {% if remaining_budget < 0 %}text-danger{% endif %}">
+                        ${{ remaining_budget|intcomma }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress" style="height: 25px;">
+                <div class="progress-bar {% if budget_percentage > 100 %}bg-danger{% elif budget_percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ budget_percentage|default:0|floatformat:1 }}%" aria-valuenow="{{ budget_percentage|default:0|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">{{ budget_percentage|floatformat:1 }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Expenses Table -->
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h4 mb-3">Recent Expenses</h2>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Created By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses|slice:":5" %}
+                        <tr>
+                            <td>{{ expense.month_year|date:"F Y" }}</td>
+                            <td>${{ expense.amount|intcomma }}</td>
+                            <td>{{ expense.description }}</td>
+                            <td>{{ expense.user.username }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'expenses:update' expense.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="{% url 'expenses:delete' expense.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No expenses recorded this month.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if expenses.count > 5 %}
+                <div class="text-end mt-2">
+                    <a href="{% url 'expenses:list' %}" class="btn btn-link">View all expenses →</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

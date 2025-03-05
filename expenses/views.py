@@ -18,7 +18,12 @@ def add_expense(request):
             expense = form.save(commit=False)
             expense.user = request.user
             expense.save()
-            return redirect('expense_list')
+            messages.success(request, 'Expense created successfully!')
+            # Check if we should redirect to home
+            next_page = request.GET.get('next')
+            if next_page == 'home':
+                return redirect('home')
+            return redirect('expenses:list')
     else:
         form = ExpenseForm()
     
@@ -59,7 +64,7 @@ def update_expense(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Expense updated successfully!')
-            return redirect('expense_list')
+            return redirect('expenses:list')
     else:
         form = ExpenseForm(instance=expense)
     
@@ -72,6 +77,6 @@ def delete_expense(request, pk):
     if request.method == 'POST':
         expense.delete()
         messages.success(request, 'Expense deleted successfully!')
-        return redirect('expense_list')
+        return redirect('expenses:list')
     
     return render(request, 'expenses/delete_expense.html', {'expense': expense})
