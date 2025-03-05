@@ -10,23 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file - ONLY ONCE
+env_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(env_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-j3a7=29q@k!l!rwpickignpe^uq_t+9k19(h#!0$g74exua!k*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = str(os.environ.get('DEBUG')).lower() == 'true'
+print(f"DEBUG value from environment: {os.environ.get('DEBUG')}")
+print(f"Calculated DEBUG value: {DEBUG}")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -39,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'storages',
     'expenses',
 ]
 
@@ -78,10 +85,17 @@ WSGI_APPLICATION = 'expense_tracker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
+# Add debug print to verify settings
+print("Django Database settings:", DATABASES['default'])
 
 
 # Password validation
@@ -118,7 +132,33 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# AWS Settings (move this section before static files configuration)
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+# Static files configuration
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'expenses', 'static'),
+]
+
+if not DEBUG:
+    print("Static files will be served from S3")
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+else:
+    print("Static files will be served locally")
+    STATIC_URL = '/static/'
+    
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Add debug print
+print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -130,13 +170,25 @@ LOGIN_REDIRECT_URL = 'expense_list'
 
 MONTHLY_BUDGET = 100000
 
-# Add this for proper static file handling
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
 # Add these settings
 CSRF_TRUSTED_ORIGINS = []
 
 # Add these security settings
 SECURE_PROXY_SSL_HEADER = None
 USE_X_FORWARDED_HOST = False
-SECURE_SSL_REDIRECT = False
+
+# Security settings - only enable in production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+# Add after AWS settings
+print("AWS Settings:")
+print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}")
+print(f"AWS_S3_CUSTOM_DOMAIN: {AWS_S3_CUSTOM_DOMAIN}")
+print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE if not DEBUG else 'local'}")
