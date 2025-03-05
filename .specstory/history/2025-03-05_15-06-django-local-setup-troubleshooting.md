@@ -879,11 +879,24 @@ I'll help you deploy the changes. First, let's check what changes we need to com
 
 _****_
 
-
+Cancelled
 
 ---
 
 _****_
+
+
+
+---
+
+_**User**_
+
+i want to connect to the server using this instruciones
+i have the key here: /Users/pablovergara/expense-tracker-key.pem, whats the correct command
+
+---
+
+_**Assistant**_
 
 
 
