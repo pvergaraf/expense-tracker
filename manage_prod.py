@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+"""Django's command-line utility for administrative tasks."""
 import os
 import sys
 from dotenv import load_dotenv
 
-if __name__ == "__main__":
+def main():
+    """Run administrative tasks."""
     # Load production environment variables
-    load_dotenv('.env')
+    load_dotenv('/etc/expense-tracker/.env.production')
     
     # Verify environment variables are loaded
     required_env_vars = [
@@ -37,4 +39,7 @@ if __name__ == "__main__":
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv) 
+    execute_from_command_line(sys.argv)
+
+if __name__ == '__main__':
+    main() 
