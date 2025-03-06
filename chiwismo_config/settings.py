@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'expenses',
     'todos',
     'shopping',
+    'activities',
 ]
 
 MIDDLEWARE = [
