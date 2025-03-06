@@ -31,16 +31,26 @@
                         <div class="list-group">
                             {% for item in active_items %}
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span>{{ item.name }}</span>
-                                        <small class="text-muted d-block">Added by {{ item.created_by.username }}</small>
+                                    <div class="item-content" data-item-id="{{ item.id }}">
+                                        <span class="item-text">{{ item.name }}</span>
+                                        <input type="text" class="form-control item-edit d-none" value="{{ item.name }}">
+                                        <small class="text-muted d-block">
+                                            Added by {{ item.created_by.username }} on {{ item.created_at|date:"M j, Y" }}
+                                        </small>
                                     </div>
-                                    <form method="post" action="{% url 'shopping:toggle' item.id %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            Mark as Purchased
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm edit-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                            </svg>
                                         </button>
-                                    </form>
+                                        <form method="post" action="{% url 'shopping:toggle' item.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                Mark as Purchased
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -62,7 +72,9 @@
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <span class="text-decoration-line-through">{{ item.name }}</span>
-                                        <small class="text-muted d-block">Purchased by {{ item.created_by.username }}</small>
+                                        <small class="text-muted d-block">
+                                            Added by {{ item.created_by.username }} on {{ item.created_at|date:"M j, Y" }}
+                                        </small>
                                     </div>
                                     <form method="post" action="{% url 'shopping:toggle' item.id %}" class="d-inline">
                                         {% csrf_token %}
@@ -79,4 +91,71 @@
         </div>
     </div>
 </div>
+
+{% csrf_token %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemContent = this.closest('.list-group-item').querySelector('.item-content');
+            const itemText = itemContent.querySelector('.item-text');
+            const itemEdit = itemContent.querySelector('.item-edit');
+            
+            // Toggle visibility
+            itemText.classList.toggle('d-none');
+            itemEdit.classList.toggle('d-none');
+            
+            if (!itemEdit.classList.contains('d-none')) {
+                itemEdit.focus();
+                itemEdit.select();
+            }
+        });
+    });
+
+    document.querySelectorAll('.item-edit').forEach(input => {
+        function saveChanges() {
+            const itemContent = input.closest('.item-content');
+            const itemId = itemContent.dataset.itemId;
+            const itemText = itemContent.querySelector('.item-text');
+            const newValue = input.value.trim();
+
+            if (newValue && newValue !== itemText.textContent) {
+                fetch(`/shopping/update/${itemId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `name=${encodeURIComponent(newValue)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        itemText.textContent = data.name;
+                        input.value = data.name;
+                    }
+                });
+            }
+
+            // Toggle visibility back
+            itemText.classList.remove('d-none');
+            input.classList.add('d-none');
+        }
+
+        // Save on Enter key
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveChanges();
+            }
+        });
+
+        // Save on blur (when input loses focus)
+        input.addEventListener('blur', saveChanges);
+    });
+});
+</script>
 {% endblock %} 

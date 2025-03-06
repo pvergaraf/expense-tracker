@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import ShoppingItem
 
 # Create your views here.
@@ -36,3 +37,14 @@ def toggle_purchased(request, item_id):
     except ShoppingItem.DoesNotExist:
         messages.error(request, 'Item not found!')
     return redirect('shopping:list')
+
+@login_required
+def update_item(request, item_id):
+    if request.method == 'POST':
+        item = get_object_or_404(ShoppingItem, id=item_id)
+        name = request.POST.get('name')
+        if name:
+            item.name = name
+            item.save()
+            return JsonResponse({'status': 'success', 'name': item.name})
+    return JsonResponse({'status': 'error'}, status=400)
