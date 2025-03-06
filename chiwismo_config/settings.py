@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'chiwismo',
     'expenses',
     'todos',
+    'shopping',
 ]
 
 MIDDLEWARE = [

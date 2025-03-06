@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="mb-4">Shopping List</h2>
+
+            <!-- Add Item Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="post" action="{% url 'shopping:add' %}" class="row g-2">
+                        {% csrf_token %}
+                        <div class="col-9">
+                            <input type="text" name="name" class="form-control" placeholder="Add new item..." required>
+                        </div>
+                        <div class="col-3">
+                            <button type="submit" class="btn btn-primary w-100">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Active Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Active Items</h5>
+                </div>
+                <div class="card-body">
+                    {% if active_items %}
+                        <div class="list-group">
+                            {% for item in active_items %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span>{{ item.name }}</span>
+                                        <small class="text-muted d-block">Added by {{ item.created_by.username }}</small>
+                                    </div>
+                                    <form method="post" action="{% url 'shopping:toggle' item.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            Mark as Purchased
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No active items in the shopping list.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recently Purchased Items -->
+            {% if purchased_items %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recently Purchased Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for item in purchased_items %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-decoration-line-through">{{ item.name }}</span>
+                                        <small class="text-muted d-block">Purchased by {{ item.created_by.username }}</small>
+                                    </div>
+                                    <form method="post" action="{% url 'shopping:toggle' item.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                            Mark as Active
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
