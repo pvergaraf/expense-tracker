@@ -21101,6 +21101,93 @@ hey, i want an activitie to have the posibilitie to have multiples logs for one 
 
 _**Assistant**_
 
+Ah, I see. We need to remove the unique constraint on the date field. Let's check the model first:
+
+---
+
+_****_
+
+Read file: undefined
+
+---
+
+_****_
+
+I see the issue. The `ActivityLog` model has a `unique_together` constraint that prevents multiple logs for the same activity, user, and date. Let's remove that constraint:
+
+---
+
+_****_
+
+```diff
+      class Meta:
+          ordering = ['-date']
+-         # Ensure a user can only log an activity once per day
+-         unique_together = ['activity', 'user', 'date']
+  
+      def __str__(self):
+```
+
+---
+
+_****_
+
+Now let's also update the management command to remove the uniqueness check:
+
+---
+
+_****_
+
+```diff
+              for date_str in dates:
+                  date = datetime.strptime(date_str, "%Y-%m-%d").date()
+-                 
+-                 # Skip if log already exists for this date
+-                 if not ActivityLog.objects.filter(activity=activity, user=user, date=date).exists():
+                  ActivityLog.objects.create(
+                      activity=activity,
+                  )
+                  self.stdout.write(self.style.SUCCESS(f'Created log for {date_str}'))
+-                 else:
+-                     self.stdout.write(self.style.WARNING(f'Log already exists for {date_str}'))
+  
+          except Activity.DoesNotExist:
+```
+
+---
+
+_****_
+
+Now we need to:
+
+1. Create and apply a migration to remove the unique constraint:
+```bash
+python3 manage_prod.py makemigrations activities
+python3 manage_prod.py migrate activities
+```
+
+2. Then run the command to add the logs:
+```bash
+python3 manage_prod.py add_test_logs
+```
+
+This will:
+1. Remove the unique constraint, allowing multiple logs per day
+2. Add all the logs, including duplicates for March 5th
+3. Show success messages for each log created
+
+Let me know after you've run these commands and we can verify the logs were created correctly.
+
+---
+
+_**User**_
+
+its not workly propperly. i add a log for same date but is not shown or saved
+
+---
+
+_**Assistant**_
+
 
 
 ---

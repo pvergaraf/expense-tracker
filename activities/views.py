@@ -122,18 +122,6 @@ def log_activity(request, activity_id):
             log = form.save(commit=False)
             log.activity = activity
             log.user = request.user
-            
-            # Check if log already exists for this date
-            existing_log = ActivityLog.objects.filter(
-                activity=activity,
-                user=request.user,
-                date=log.date
-            ).first()
-            
-            if existing_log:
-                messages.info(request, f'You already logged this activity on {log.date}.')
-                return redirect('activities:detail', activity_id=activity.id)
-            
             log.save()
             messages.success(request, f'Activity "{activity.name}" logged successfully!')
             return redirect('activities:detail', activity_id=activity.id)
