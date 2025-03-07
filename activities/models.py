@@ -40,8 +40,6 @@ class ActivityLog(models.Model):
 
     class Meta:
         ordering = ['-date']
-        # Ensure a user can only log an activity once per day
-        unique_together = ['activity', 'user', 'date']
 
     def __str__(self):
         return f"{self.activity.name} - {self.date}"

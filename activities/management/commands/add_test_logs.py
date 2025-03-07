@@ -25,18 +25,13 @@ class Command(BaseCommand):
 
             for date_str in dates:
                 date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                
-                # Skip if log already exists for this date
-                if not ActivityLog.objects.filter(activity=activity, user=user, date=date).exists():
-                    ActivityLog.objects.create(
-                        activity=activity,
-                        user=user,
-                        date=date,
-                        notes=f"Test log for {date_str}"
-                    )
-                    self.stdout.write(self.style.SUCCESS(f'Created log for {date_str}'))
-                else:
-                    self.stdout.write(self.style.WARNING(f'Log already exists for {date_str}'))
+                ActivityLog.objects.create(
+                    activity=activity,
+                    user=user,
+                    date=date,
+                    notes=f"Test log for {date_str}"
+                )
+                self.stdout.write(self.style.SUCCESS(f'Created log for {date_str}'))
 
         except Activity.DoesNotExist:
             self.stdout.write(self.style.ERROR('Activity with ID 1 does not exist'))

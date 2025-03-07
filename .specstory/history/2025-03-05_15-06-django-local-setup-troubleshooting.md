@@ -21057,6 +21057,50 @@ _****_
 
 _****_
 
+Now let's create the required `__init__.py` files:
+
+---
+
+_****_
+
+```bash
+touch activities/management/__init__.py activities/management/commands/__init__.py
+```
+
+```
+pablovergara@Pablos-MacBook-Pro expense-tracker % 
+
+```
+
+---
+
+_****_
+
+Now you can run the command to add the logs:
+
+```bash
+python3 manage_prod.py add_test_logs
+```
+
+This will:
+1. Find activity with ID 1
+2. Get the first user in the system
+3. Add logs for all the specified dates
+4. Skip any dates that already have logs
+5. Show success/warning messages for each operation
+
+Let me know if you get any errors or if you need to modify any of the dates.
+
+---
+
+_**User**_
+
+hey, i want an activitie to have the posibilitie to have multiples logs for one date, add that
+
+---
+
+_**Assistant**_
+
 
 
 ---
