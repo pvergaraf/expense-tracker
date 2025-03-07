@@ -20,7 +20,12 @@
                         <div class="list-group-item">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div>
-                                    <h5 class="mb-1">{{ todo.title }}</h5>
+                                    <h5 class="mb-1">
+                                        {{ todo.title }}
+                                        {% if todo.shared %}
+                                            <span class="badge bg-info ms-2">Shared</span>
+                                        {% endif %}
+                                    </h5>
                                     <p class="mb-1">{{ todo.description }}</p>
                                     <small>
                                         Created by: {{ todo.created_by.username }} |
@@ -66,7 +71,12 @@
                         <div class="list-group-item">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div>
-                                    <h5 class="mb-1 text-muted"><del>{{ todo.title }}</del></h5>
+                                    <h5 class="mb-1 text-muted">
+                                        <del>{{ todo.title }}</del>
+                                        {% if todo.shared %}
+                                            <span class="badge bg-info ms-2">Shared</span>
+                                        {% endif %}
+                                    </h5>
                                     <p class="mb-1 text-muted">{{ todo.description }}</p>
                                     <small>
                                         Completed: {{ todo.completed_at|naturaltime }} |

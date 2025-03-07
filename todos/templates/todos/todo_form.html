@@ -40,11 +40,15 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="{{ form.priority.id_for_label }}" class="form-label">Priority (0-5)</label>
-                            {{ form.priority }}
-                            {% if form.priority.errors %}
+                            <div class="form-check">
+                                {{ form.shared }}
+                                <label class="form-check-label" for="{{ form.shared.id_for_label }}">
+                                    Make this todo visible to all users
+                                </label>
+                            </div>
+                            {% if form.shared.errors %}
                                 <div class="alert alert-danger mt-2">
-                                    {{ form.priority.errors }}
+                                    {{ form.shared.errors }}
                                 </div>
                             {% endif %}
                         </div>

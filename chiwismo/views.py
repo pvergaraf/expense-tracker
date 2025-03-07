@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.conf import settings
 from expenses.models import Expense
 from todos.models import Todo
@@ -23,8 +23,11 @@ def home(request):
     remaining_budget = budget - total_expenses
     budget_percentage = (total_expenses / budget) * 100 if budget > 0 else 0
     
-    # Get not completed todos
-    pending_todos = Todo.objects.filter(completed=False).order_by('priority', '-created_at')[:5]
+    # Get not completed todos where user is creator, assignee, or todo is shared
+    pending_todos = Todo.objects.filter(
+        Q(completed=False) &
+        (Q(created_by=request.user) | Q(assigned_to=request.user) | Q(shared=True))
+    ).distinct().select_related('created_by').prefetch_related('assigned_to').order_by('due_date', '-created_at')[:5]
     
     # Get random welcome message
     welcome_message = random.choice(WELCOME_MESSAGES)

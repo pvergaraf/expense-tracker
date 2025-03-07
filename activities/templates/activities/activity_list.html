@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Activities</h1>
+        <div>
+            <a href="{% url 'activities:dashboard' %}" class="btn btn-outline-primary me-2">Dashboard</a>
+            <a href="{% url 'activities:create' %}" class="btn btn-primary">Create Activity</a>
+        </div>
+    </div>
+
+    {% if activities %}
+        <div class="row">
+            {% for activity in activities %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                {% if activity.icon %}{{ activity.icon }} {% endif %}{{ activity.name }}
+                                {% if activity.shared %}
+                                    <span class="badge bg-info ms-2">Shared</span>
+                                {% endif %}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if activity.description %}
+                                <p>{{ activity.description }}</p>
+                            {% else %}
+                                <p class="text-muted">No description</p>
+                            {% endif %}
+                            
+                            {% with last_log=activity.get_last_log %}
+                                {% if last_log %}
+                                    <p class="mb-0 text-muted">Last logged: {{ last_log.date|date:"M d, Y" }}</p>
+                                {% else %}
+                                    <p class="mb-0 text-muted">No logs yet</p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100" role="group">
+                                <a href="{% url 'activities:detail' activity.id %}" class="btn btn-outline-primary">View</a>
+                                <a href="{% url 'activities:log' activity.id %}" class="btn btn-outline-success">Log</a>
+                                {% if activity.created_by == request.user %}
+                                    <a href="{% url 'activities:edit' activity.id %}" class="btn btn-outline-secondary">Edit</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h5 class="mb-3">No activities found</h5>
+                <p class="text-muted mb-4">Start tracking your activities by creating one.</p>
+                <a href="{% url 'activities:create' %}" class="btn btn-primary">Create Activity</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

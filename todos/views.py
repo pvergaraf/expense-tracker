@@ -5,15 +5,17 @@ from django.utils import timezone
 from .models import Todo
 from .forms import TodoForm
 from django.db import models
+from django.db.models import Q
 
 # Create your views here.
 
 @login_required
 def todo_list(request):
-    # Get todos where user is either creator or assignee
+    # Get all todos where user is creator, assignee, or the todo is shared
     todos = Todo.objects.filter(
-        models.Q(created_by=request.user) |
-        models.Q(assigned_to=request.user)
+        Q(created_by=request.user) |
+        Q(assigned_to=request.user) |
+        Q(shared=True)
     ).distinct()
     
     context = {
@@ -48,6 +50,11 @@ def add_todo(request):
 def update_todo(request, pk):
     todo = get_object_or_404(Todo, pk=pk)
     
+    # Check if user has permission to edit this todo
+    if not (todo.created_by == request.user or todo.shared):
+        messages.error(request, "You don't have permission to edit this todo.")
+        return redirect('todos:list')
+    
     if request.method == 'POST':
         form = TodoForm(request.POST, instance=todo)
         if form.is_valid():
@@ -67,6 +74,11 @@ def update_todo(request, pk):
 def delete_todo(request, pk):
     todo = get_object_or_404(Todo, pk=pk)
     
+    # Check if user has permission to delete this todo
+    if not (todo.created_by == request.user or todo.shared):
+        messages.error(request, "You don't have permission to delete this todo.")
+        return redirect('todos:list')
+    
     if request.method == 'POST':
         todo.delete()
         messages.success(request, 'Todo deleted successfully!')
@@ -77,6 +89,12 @@ def delete_todo(request, pk):
 @login_required
 def toggle_todo(request, pk):
     todo = get_object_or_404(Todo, pk=pk)
+    
+    # Check if user has permission to toggle this todo
+    if not (todo.created_by == request.user or todo.shared or request.user in todo.assigned_to.all()):
+        messages.error(request, "You don't have permission to toggle this todo.")
+        return redirect('todos:list')
+    
     todo.completed = not todo.completed
     todo.completed_at = timezone.now() if todo.completed else None
     todo.save()
